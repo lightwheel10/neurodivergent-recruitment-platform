@@ -63,7 +63,7 @@ export default function AdminPage() {
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-gray-700">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -71,12 +71,12 @@ export default function AdminPage() {
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                     placeholder="admin@example.com"
                     required
-                    className="mt-1"
+                    className="mt-1 text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-gray-700">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -84,7 +84,7 @@ export default function AdminPage() {
                     onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                     placeholder="••••••••"
                     required
-                    className="mt-1"
+                    className="mt-1 text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
               </div>
