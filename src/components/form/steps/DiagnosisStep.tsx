@@ -7,9 +7,28 @@ import type { Candidate, DiagnosisType } from "@/types/candidate";
 interface DiagnosisStepProps {
   formData: Partial<Candidate>;
   onDiagnosisChange: (value: DiagnosisType, field: 'diagnosis1' | 'diagnosis2') => void;
+  setFormData: (data: Partial<Candidate>) => void;
 }
 
-export function DiagnosisStep({ formData, onDiagnosisChange }: DiagnosisStepProps) {
+export function DiagnosisStep({ formData, onDiagnosisChange, setFormData }: DiagnosisStepProps) {
+  const handleDiagnosisChange = (value: DiagnosisType, field: 'diagnosis1' | 'diagnosis2') => {
+    const currentDiagnoses = [...(formData.diagnoses || [])];
+    const diagnosisIndex = field === 'diagnosis1' ? 0 : 1;
+    
+    // Initialize or update diagnosis with empty assessment
+    currentDiagnoses[diagnosisIndex] = {
+      type: value,
+      assessment: {
+        symptomSeverity: 0,
+        symptomFluctuationLongTerm: 0,
+        symptomFluctuationShortTerm: 0,
+      }
+    };
+    
+    setFormData({ ...formData, diagnoses: currentDiagnoses });
+    onDiagnosisChange(value, field);
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 p-4 sm:p-6">
       <div className="space-y-3">
@@ -22,8 +41,8 @@ export function DiagnosisStep({ formData, onDiagnosisChange }: DiagnosisStepProp
             Primary Diagnosis
           </Label>
           <Select
-            value={formData.diagnosis1}
-            onValueChange={(value) => onDiagnosisChange(value as DiagnosisType, 'diagnosis1')}
+            value={formData.diagnoses?.[0]?.type}
+            onValueChange={(value) => handleDiagnosisChange(value as DiagnosisType, 'diagnosis1')}
           >
             <SelectTrigger className="h-10 sm:h-12 text-sm sm:text-base text-gray-900 bg-white relative z-20">
               <SelectValue placeholder="Select your primary diagnosis" />
@@ -50,8 +69,8 @@ export function DiagnosisStep({ formData, onDiagnosisChange }: DiagnosisStepProp
             Secondary Diagnosis (Optional)
           </Label>
           <Select
-            value={formData.diagnosis2}
-            onValueChange={(value) => onDiagnosisChange(value as DiagnosisType, 'diagnosis2')}
+            value={formData.diagnoses?.[1]?.type}
+            onValueChange={(value) => handleDiagnosisChange(value as DiagnosisType, 'diagnosis2')}
           >
             <SelectTrigger className="h-10 sm:h-12 text-sm sm:text-base text-gray-900 bg-white relative z-20">
               <SelectValue placeholder="Select secondary diagnosis (if any)" />

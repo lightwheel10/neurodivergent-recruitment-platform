@@ -1,10 +1,9 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
     match /candidates/{candidateId} {
-      allow read: if request.auth != null;
-      allow create: if true; // Anyone can create a candidate
-      allow update, delete: if false; // No updates or deletes allowed
+      allow read, write: if true;  // Temporary for development
     }
   }
 } 

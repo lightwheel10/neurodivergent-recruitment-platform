@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { createCandidate } from '@/lib/firebase/candidate-service';
-import type { DiagnosisType, Candidate } from '@/types/candidate';
+import type { Candidate } from '@/types/candidate';
 import { FormProgress } from './form/FormProgress';
 import { ContactStep } from './form/steps/ContactStep';
 import { DiagnosisStep } from './form/steps/DiagnosisStep';
@@ -28,6 +28,7 @@ export function CandidateForm() {
   const [formData, setFormData] = useState<Partial<Candidate>>({
     superpowers: [],
     vulnerabilities: [],
+    diagnoses: [],
   });
 
   const triggerConfetti = () => {
@@ -47,26 +48,23 @@ export function CandidateForm() {
     
     setIsSubmitting(true);
     try {
+      if (!formData.name || !formData.email || !formData.diagnoses?.length) {
+        throw new Error('Please fill in all required fields');
+      }
+
       await createCandidate(formData as Omit<Candidate, 'id' | 'createdAt'>);
       setIsSuccess(true);
       triggerConfetti();
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('Error submitting form. Please try again.');
+      alert(error instanceof Error ? error.message : 'Error submitting form. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDiagnosisChange = (value: DiagnosisType, field: 'diagnosis1' | 'diagnosis2') => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-      ...(field === 'diagnosis1' && {
-        superpowers: [],
-        vulnerabilities: []
-      })
-    }));
+  const handleDiagnosisChange = () => {
+    // DiagnosisStep component handles the diagnoses array updates directly
   };
 
   if (isSuccess) {
@@ -138,6 +136,7 @@ export function CandidateForm() {
                   <DiagnosisStep 
                     formData={formData} 
                     onDiagnosisChange={handleDiagnosisChange}
+                    setFormData={setFormData}
                   />
                 )}
 

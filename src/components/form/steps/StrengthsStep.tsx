@@ -11,7 +11,8 @@ interface StrengthsStepProps {
 }
 
 export function StrengthsStep({ formData, setFormData }: StrengthsStepProps) {
-  if (!formData.diagnosis1) return null;
+  const primaryDiagnosis = formData.diagnoses?.[0]?.type;
+  if (!primaryDiagnosis) return null;
 
   const handleSuperPowerChange = (power: string, checked: boolean) => {
     const powers = formData.superpowers || [];
@@ -43,7 +44,7 @@ export function StrengthsStep({ formData, setFormData }: StrengthsStepProps) {
         <div className="space-y-4">
           <h3 className="text-xl font-semibold text-blue-600">Superpowers</h3>
           <div className="space-y-3 bg-blue-50 p-6 rounded-xl">
-            {PREDEFINED_SUPERPOWERS[formData.diagnosis1].map(power => (
+            {PREDEFINED_SUPERPOWERS[primaryDiagnosis].map(power => (
               <label 
                 key={power} 
                 className={cn(
@@ -67,7 +68,7 @@ export function StrengthsStep({ formData, setFormData }: StrengthsStepProps) {
         <div className="space-y-4">
           <h3 className="text-xl font-semibold text-purple-600">Areas of Support</h3>
           <div className="space-y-3 bg-purple-50 p-6 rounded-xl">
-            {PREDEFINED_VULNERABILITIES[formData.diagnosis1].map(vulnerability => (
+            {PREDEFINED_VULNERABILITIES[primaryDiagnosis].map(vulnerability => (
               <label 
                 key={vulnerability} 
                 className={cn(

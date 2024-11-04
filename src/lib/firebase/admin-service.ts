@@ -13,7 +13,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     const candidatesRef = collection(db, 'candidates');
     const querySnapshot = await getDocs(candidatesRef);
     
-    // Calculate stats from the documents
     const total = querySnapshot.size;
     const pending = querySnapshot.docs.filter(doc => !doc.data().reviewed).length;
     const matched = querySnapshot.docs.filter(doc => doc.data().matched).length;
@@ -43,13 +42,9 @@ export async function getAllCandidates(): Promise<Candidate[]> {
         age: data.age,
         email: data.email,
         phoneNumber: data.phoneNumber,
-        diagnosis1: data.diagnosis1,
-        diagnosis2: data.diagnosis2,
-        symptomSeverity: data.symptomSeverity,
-        symptomFluctuationLongTerm: data.symptomFluctuationLongTerm,
-        symptomFluctuationShortTerm: data.symptomFluctuationShortTerm,
-        superpowers: data.superpowers,
-        vulnerabilities: data.vulnerabilities,
+        diagnoses: data.diagnoses || [],
+        superpowers: data.superpowers || [],
+        vulnerabilities: data.vulnerabilities || [],
         createdAt: (data.createdAt as Timestamp).toDate(),
         matched: data.matched || false,
         reviewed: data.reviewed || false

@@ -26,7 +26,7 @@ export function CandidateProfileDialog({ candidate }: CandidateProfileDialogProp
           <Eye className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl bg-white [&>button]:hidden">
+      <DialogContent className="bg-white sm:max-w-2xl">
         <DialogHeader className="space-y-1 pb-2 border-b">
           <DialogTitle className="text-lg font-bold text-gray-900">
             Candidate Details
@@ -69,38 +69,30 @@ export function CandidateProfileDialog({ candidate }: CandidateProfileDialogProp
             </section>
           </div>
 
-          {/* Diagnosis */}
+          {/* Diagnoses Section */}
           <section className="bg-gray-50 p-2.5 rounded-lg">
             <h3 className="text-sm font-semibold text-gray-900 mb-1.5">
-              Diagnosis
+              Diagnoses & Assessments
             </h3>
-            <div className="space-y-0.5">
-              <p className="text-gray-700 text-sm">
-                <span className="font-medium">Primary:</span> {candidate.diagnosis1}
-              </p>
-              {candidate.diagnosis2 && (
-                <p className="text-gray-700 text-sm">
-                  <span className="font-medium">Secondary:</span> {candidate.diagnosis2}
-                </p>
-              )}
-            </div>
-          </section>
-
-          {/* Assessment Scores */}
-          <section className="bg-gray-50 p-2.5 rounded-lg">
-            <h3 className="text-sm font-semibold text-gray-900 mb-1.5">
-              Assessment Scores
-            </h3>
-            <div className="grid grid-cols-3 gap-2">
-              <p className="text-gray-700 text-sm">
-                <span className="font-medium">Severity:</span> {candidate.symptomSeverity}/5
-              </p>
-              <p className="text-gray-700 text-sm">
-                <span className="font-medium">Long-term:</span> {candidate.symptomFluctuationLongTerm}/5
-              </p>
-              <p className="text-gray-700 text-sm">
-                <span className="font-medium">Short-term:</span> {candidate.symptomFluctuationShortTerm}/5
-              </p>
+            <div className="space-y-3">
+              {candidate.diagnoses.map((diagnosis, index) => (
+                <div key={index} className="space-y-1">
+                  <p className="text-gray-700 text-sm font-medium">
+                    {index === 0 ? 'Primary: ' : 'Secondary: '}{diagnosis.type}
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 pl-4">
+                    <p className="text-gray-600 text-xs">
+                      Severity: {diagnosis.assessment.symptomSeverity}/5
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      Long-term: {diagnosis.assessment.symptomFluctuationLongTerm}/5
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      Short-term: {diagnosis.assessment.symptomFluctuationShortTerm}/5
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 

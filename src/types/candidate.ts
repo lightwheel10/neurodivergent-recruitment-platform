@@ -1,14 +1,21 @@
+export interface AssessmentScores {
+  symptomSeverity: number;
+  symptomFluctuationLongTerm: number;
+  symptomFluctuationShortTerm: number;
+}
+
+export interface DiagnosisWithAssessment {
+  type: DiagnosisType;
+  assessment: AssessmentScores;
+}
+
 export interface Candidate {
   id?: string;
   name: string;
   age: number;
   email: string;
   phoneNumber?: string;
-  diagnosis1: DiagnosisType;
-  diagnosis2?: DiagnosisType;
-  symptomSeverity: number;
-  symptomFluctuationLongTerm: number;
-  symptomFluctuationShortTerm: number;
+  diagnoses: DiagnosisWithAssessment[];
   superpowers: string[];
   vulnerabilities: string[];
   createdAt: Date;
