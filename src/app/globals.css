@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Updated close button styles */
+[data-dialog-close] {
+  @apply text-gray-400 
+         hover:text-gray-500 
+         transition-colors 
+         !outline-none 
+         !ring-0 
+         !border-0 
+         rounded-sm 
+         p-0.5;
+}
+
+[data-dialog-close] svg {
+  @apply w-5 h-5;
+}
+
+/* Remove focus outline and any borders */
+[data-dialog-close]:focus,
+[data-dialog-close]:focus-visible,
+[data-dialog-close]:active {
+  @apply outline-none ring-0 border-0 shadow-none;
+}
