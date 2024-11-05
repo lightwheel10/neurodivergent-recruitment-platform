@@ -31,7 +31,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 export async function getAllCandidates(): Promise<Candidate[]> {
   try {
     const candidatesRef = collection(db, 'candidates');
-    const q = query(candidatesRef, orderBy('createdAt', 'desc'));
+    const q = query(
+      candidatesRef, 
+      orderBy('createdAt', 'desc')
+    );
     const querySnapshot = await getDocs(q);
     
     return querySnapshot.docs.map(doc => {
@@ -47,7 +50,12 @@ export async function getAllCandidates(): Promise<Candidate[]> {
         vulnerabilities: data.vulnerabilities || [],
         createdAt: (data.createdAt as Timestamp).toDate(),
         matched: data.matched || false,
-        reviewed: data.reviewed || false
+        reviewed: data.reviewed || false,
+        mbtiType: data.mbtiType || undefined,
+        discType: data.discType || undefined,
+        enneagramType: data.enneagramType || undefined,
+        workPreference: data.workPreference || { minOffice: 0, minWFH: 0 },
+        externalKillers: data.externalKillers || []
       } as Candidate;
     });
   } catch (error) {

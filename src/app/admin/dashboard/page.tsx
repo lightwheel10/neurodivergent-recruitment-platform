@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card } from "@/components/ui/card";
@@ -9,7 +9,11 @@ import { getDashboardStats, getAllCandidates, confirmCandidate } from '@/lib/fir
 import type { Candidate } from '@/types/candidate';
 import { 
   CheckCircle, 
-  Trash2
+  Trash2, 
+  ChevronLeft, 
+  ChevronRight, 
+  ChevronsLeft, 
+  ChevronsRight 
 } from 'lucide-react';
 import {
   Dialog,
@@ -20,6 +24,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CandidateProfileDialog } from "@/components/admin/CandidateProfileDialog";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { CandidatesTable } from "@/components/admin/CandidatesTable";
+import { FilterPanel, FilterOptions, defaultFilters } from '@/components/admin/FilterPanel';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -31,6 +39,10 @@ export default function AdminDashboard() {
   });
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [filters, setFilters] = useState<FilterOptions>(defaultFilters);
 
   useEffect(() => {
     // Check if admin is authenticated
@@ -58,6 +70,104 @@ export default function AdminDashboard() {
 
     loadDashboardData();
   }, [router]);
+
+  useEffect(() => {
+    if (candidates.length === 0) return;
+
+    const filtered = candidates.filter(candidate => {
+      const filterConditions = [];
+
+      // Combined Diagnosis Filtering with Position Check
+      const hasPrimaryMatch = candidate.diagnoses[0]?.type === filters.diagnosis;
+      const hasSecondaryMatch = candidate.diagnoses[1]?.type === filters.diagnosis2;
+      
+      // Primary Diagnosis Filter
+      if (filters.diagnosis !== 'all') {
+        filterConditions.push(hasPrimaryMatch);
+      }
+
+      // Secondary Diagnosis Filter (independent of primary)
+      if (filters.diagnosis2 !== 'all') {
+        filterConditions.push(hasSecondaryMatch);
+      }
+
+      // Assessment Score Filtering - Optimized
+      const isAssessmentFiltered = 
+        filters.shortTermRange[0] !== 0 || 
+        filters.shortTermRange[1] !== 5 ||
+        filters.longTermRange[0] !== 0 || 
+        filters.longTermRange[1] !== 5 ||
+        filters.severityRange[0] !== 0 || 
+        filters.severityRange[1] !== 5;
+
+      if (isAssessmentFiltered) {
+        // Optimize by checking each diagnosis only once
+        const assessmentMatches = candidate.diagnoses.some(diagnosis => {
+          if (!diagnosis?.assessment) return false;
+
+          // Destructure for cleaner code and better performance
+          const {
+            symptomFluctuationShortTerm: shortTerm = 0,
+            symptomFluctuationLongTerm: longTerm = 0,
+            symptomSeverity: severity = 0
+          } = diagnosis.assessment;
+
+          // Check all ranges at once
+          return (
+            shortTerm >= filters.shortTermRange[0] &&
+            shortTerm <= filters.shortTermRange[1] &&
+            longTerm >= filters.longTermRange[0] &&
+            longTerm <= filters.longTermRange[1] &&
+            severity >= filters.severityRange[0] &&
+            severity <= filters.severityRange[1]
+          );
+        });
+
+        filterConditions.push(assessmentMatches);
+      }
+
+      // Personality Type Filters - Combined check
+      const personalityFilters = [];
+      if (filters.mbtiType !== 'all') {
+        personalityFilters.push(candidate.mbtiType === filters.mbtiType);
+      }
+      if (filters.discType !== 'all') {
+        personalityFilters.push(candidate.discType === filters.discType);
+      }
+      
+      if (personalityFilters.length > 0) {
+        filterConditions.push(personalityFilters.every(condition => condition));
+      }
+
+      // Work Preference Filtering - Optimized
+      const isWorkPreferenceFiltered = 
+        filters.minOffice[0] !== 0 || 
+        filters.minOffice[1] !== 5 ||
+        filters.minWFH[0] !== 0 || 
+        filters.minWFH[1] !== 5;
+
+      if (isWorkPreferenceFiltered) {
+        const { minOffice = 0, minWFH = 0 } = candidate.workPreference ?? {};
+
+        const workPreferenceMatches = 
+          minOffice >= filters.minOffice[0] &&
+          minOffice <= filters.minOffice[1] &&
+          minWFH >= filters.minWFH[0] &&
+          minWFH <= filters.minWFH[1];
+
+        filterConditions.push(workPreferenceMatches);
+      }
+
+      // Performance optimization: early return if no filters
+      if (filterConditions.length === 0) return true;
+
+      // All active filters must pass
+      return filterConditions.every(condition => condition);
+    });
+
+    setFilteredCandidates(filtered);
+    setCurrentPage(1);
+  }, [candidates, filters]);
 
   // Update sign out button handler
   const handleSignOut = () => {
@@ -149,142 +259,29 @@ export default function AdminDashboard() {
 
         {/* Candidates Table */}
         <Card className="overflow-hidden">
-          <div className="p-6 bg-white border-b">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Applications</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Age
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Diagnosis
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                      Loading candidates...
-                    </td>
-                  </tr>
-                ) : candidates.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                      No candidates found
-                    </td>
-                  </tr>
-                ) : (
-                  candidates.map((candidate) => (
-                    <tr key={candidate.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {candidate.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {candidate.age}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{candidate.email}</div>
-                        {candidate.phoneNumber && (
-                          <div className="text-sm text-gray-500">{candidate.phoneNumber}</div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {candidate.diagnoses.map((diagnosis, index) => (
-                          <div key={index} className={`text-sm ${index === 0 ? 'text-gray-900' : 'text-gray-500'}`}>
-                            {diagnosis.type} ({diagnosis.assessment.symptomSeverity}/5)
-                          </div>
-                        ))}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          candidate.reviewed
-                            ? candidate.matched
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {candidate.reviewed
-                            ? candidate.matched
-                              ? 'Matched'
-                              : 'Reviewed'
-                            : 'Pending'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end gap-2">
-                          {/* View Button */}
-                          <CandidateProfileDialog candidate={candidate} />
+          <div className="p-6 bg-white border-b space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Recent Applications</h2>
+              <div className="text-sm text-gray-500">
+                Total: {candidates.length} | Filtered: {filteredCandidates.length}
+              </div>
+            </div>
 
-                          {/* Confirm Button */}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600 hover:text-green-700"
-                            onClick={() => handleConfirmCandidate(candidate.id!)}
-                            disabled={candidate.reviewed}
-                          >
-                            <CheckCircle className="w-4 h-4" />
-                          </Button>
-
-                          {/* Delete Button */}
-                          <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="bg-white [&>button]:hidden">
-                              <DialogHeader>
-                                <DialogTitle>Confirm Deletion</DialogTitle>
-                                <DialogDescription>
-                                  Are you sure you want to delete this candidate? This action cannot be undone.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="mt-4 flex justify-end gap-3">
-                                <Button
-                                  variant="outline"
-                                  onClick={() => setShowDeleteDialog(false)}
-                                >
-                                  Cancel
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  onClick={() => handleDeleteCandidate(candidate.id!)}
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+            <FilterPanel
+              filters={filters}
+              onFilterChange={setFilters}
+              onReset={() => setFilters(defaultFilters)}
+            />
           </div>
+
+          <CandidatesTable
+            candidates={filteredCandidates}
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onConfirm={handleConfirmCandidate}
+            onDelete={(id) => setShowDeleteDialog(true)}
+          />
         </Card>
       </main>
     </div>

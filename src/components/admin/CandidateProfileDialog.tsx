@@ -26,17 +26,12 @@ export function CandidateProfileDialog({ candidate }: CandidateProfileDialogProp
           <Eye className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-white sm:max-w-2xl">
-        <DialogHeader className="space-y-1 pb-2 border-b">
-          <DialogTitle className="text-lg font-bold text-gray-900">
-            Candidate Details
-          </DialogTitle>
-          <DialogDescription className="text-sm text-gray-600">
-            Review the candidate&apos;s information below.
-          </DialogDescription>
+      <DialogContent className="bg-white max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Candidate Profile</DialogTitle>
         </DialogHeader>
-
-        <div className="mt-3 space-y-3">
+        
+        <div className="space-y-6">
           <div className="grid grid-cols-2 gap-3">
             {/* Personal Information */}
             <section className="bg-gray-50 p-2.5 rounded-lg">
@@ -127,6 +122,25 @@ export function CandidateProfileDialog({ candidate }: CandidateProfileDialogProp
               </ul>
             </section>
           </div>
+
+          {/* Add Personality Section */}
+          <section className="bg-gray-50 p-2.5 rounded-lg">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1.5">
+              Personality Assessment
+            </h3>
+            <div className="space-y-2">
+              {candidate.mbtiType && (
+                <p className="text-gray-700 text-sm">
+                  MBTI Type: <span className="font-medium">{candidate.mbtiType}</span>
+                </p>
+              )}
+              {candidate.discType && (
+                <p className="text-gray-700 text-sm">
+                  DISC Type: <span className="font-medium">{candidate.discType}</span>
+                </p>
+              )}
+            </div>
+          </section>
         </div>
       </DialogContent>
     </Dialog>

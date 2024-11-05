@@ -10,6 +10,7 @@ import { FormProgress } from './form/FormProgress';
 import { ContactStep } from './form/steps/ContactStep';
 import { DiagnosisStep } from './form/steps/DiagnosisStep';
 import { AssessmentStep } from './form/steps/AssessmentStep';
+import { PersonalityStep } from './form/steps/PersonalityStep';
 import { StrengthsStep } from './form/steps/StrengthsStep';
 import { cn } from "@/lib/utils";
 import confetti from 'canvas-confetti';
@@ -18,6 +19,7 @@ const steps = [
   { id: 'contact', title: 'Contact Info', icon: '👋' },
   { id: 'diagnosis', title: 'Diagnosis', icon: '🔍' },
   { id: 'assessment', title: 'Assessment', icon: '📊' },
+  { id: 'personality', title: 'Personality', icon: '🎭' },
   { id: 'strengths', title: 'Strengths', icon: '💪' }
 ];
 
@@ -145,6 +147,10 @@ export function CandidateForm() {
                 )}
 
                 {currentStep === 3 && (
+                  <PersonalityStep formData={formData} setFormData={setFormData} />
+                )}
+
+                {currentStep === 4 && (
                   <StrengthsStep formData={formData} setFormData={setFormData} />
                 )}
               </div>
