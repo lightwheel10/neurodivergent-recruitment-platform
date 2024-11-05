@@ -7,25 +7,6 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { getDashboardStats, getAllCandidates, confirmCandidate } from '@/lib/firebase/admin-service';
 import type { Candidate } from '@/types/candidate';
-import { 
-  CheckCircle, 
-  Trash2, 
-  ChevronLeft, 
-  ChevronRight, 
-  ChevronsLeft, 
-  ChevronsRight 
-} from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { CandidateProfileDialog } from "@/components/admin/CandidateProfileDialog";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
 import { CandidatesTable } from "@/components/admin/CandidatesTable";
 import { FilterPanel, FilterOptions, defaultFilters } from '@/components/admin/FilterPanel';
 
@@ -38,7 +19,6 @@ export default function AdminDashboard() {
     successfulMatches: 0,
   });
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -196,12 +176,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteCandidate = async (candidateId: string) => {
-    // TODO: Implement delete logic
-    console.log('Deleting candidate:', candidateId);
-    setShowDeleteDialog(false);
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b sticky top-0 z-50">
@@ -280,7 +254,7 @@ export default function AdminDashboard() {
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
             onConfirm={handleConfirmCandidate}
-            onDelete={(id) => setShowDeleteDialog(true)}
+            onDelete={() => {}}
           />
         </Card>
       </main>

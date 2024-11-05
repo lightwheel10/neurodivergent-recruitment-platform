@@ -6,10 +6,7 @@ import {
   CheckCircle, 
   Trash2, 
   ChevronLeft, 
-  ChevronRight, 
-  ChevronsLeft, 
-  ChevronsRight,
-  Eye 
+  ChevronRight,
 } from 'lucide-react';
 import type { Candidate } from '@/types/candidate';
 import { CandidateProfileDialog } from "./CandidateProfileDialog";
